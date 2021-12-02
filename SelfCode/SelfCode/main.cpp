@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <math.h>
 
 using namespace std;
 typedef vector<vector<int>> mat;
@@ -39,8 +40,16 @@ typedef vector<vector<vector<int>>> cube;
 
 mat r(3, vector<int> (4, 0)); // releasing time of each machine = stage * machines
 vector<int> pai (10, 0); // scheduling jobs
-mat JML (10, vector<int> (3, 0) ); // job machine list = jobs*stages = Number of machine
+mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
 cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
+
+void PrintMat (mat aMat, int l, int c) {
+    for (int i=0; i<l; i++) {
+        for (int j=0; j<c; j++)
+            cout << (aMat[i][j] + 1) << " ";
+        cout << endl;
+    }
+}
 
 mat cal_Cmax (vector<int> pai) {
     // arrange 1er job
@@ -61,6 +70,8 @@ mat cal_Cmax (vector<int> pai) {
             r[s][mCr] = ptCr + r[s-1][ JML[pai[0]] [s-1] ];
     }
     // fin arrange 1er job
+    
+    //PrintMat(JML, 1, 3);
     
     int gapMax = 0;
     // iterate job from 2nd to n
@@ -111,8 +122,6 @@ mat cal_Cmax (vector<int> pai) {
     return JML;
 }
 
-
-
 int main(int argc, const char * argv[]) {
 //    ifstream f1;
 //    f1.open
@@ -157,10 +166,10 @@ int main(int argc, const char * argv[]) {
     r[1][3] = INT_MAX; // no 3rd machine in stage2
     r[2][3] = INT_MAX; // no 3rd machine in stage3
     
-    pai = {1,2,3};
+    pai = {0,1,2,3,4,5,6};
     mat test = cal_Cmax(pai);
     
-    
+    PrintMat(test, 10, STAGE);
     
     return 0;
 }
