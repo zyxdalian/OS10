@@ -37,6 +37,7 @@ typedef vector<vector<vector<int>>> cube;
 
 #define STAGE 3
 #define JOBS 10
+#define MaxNumMac 4 // max numbre of machines in all stages
 
 mat r(3, vector<int> (4, 0)); // releasing time of each machine = stage * machines
 vector<int> pai (10, 0); // scheduling jobs
@@ -51,17 +52,22 @@ void PrintMat (mat aMat, int l, int c) {
     }
 }
 
-mat cal_Cmax (vector<int> pai) {
+int cal_Cmax (vector<int> pai) {
+    
+    int C_Max = -1; // max completing time
+    
     // arrange 1er job
     for (int s=0; s<STAGE; s++) {
         // find machine of shortest processing time for 1er job in each stage
         int mCr = 0; // current machine
         int ptCr = PT[s][0][0]; // current releasing time
-        for (int m=0; m<PT[s][0].size(); m++) {
+        for (int m=0; m<MaxNumMac; m++) { //m<PT[s][0].size()
             if (ptCr > PT[s][0][m]) {
                 ptCr = PT[s][0][m];
-                ptCr = m;
+                mCr = m;
+//                cout << "ptCr = " << ptCr << " ";
             }
+//            cout << endl;
         }
         JML[pai[0]] [s] = mCr; // assign 1er job to current machine
         if (s == 0)
@@ -71,10 +77,8 @@ mat cal_Cmax (vector<int> pai) {
     }
     // fin arrange 1er job
     
-    //PrintMat(JML, 1, 3);
-    
     int gapMax = 0;
-    // iterate job from 2nd to n
+    // iterate job from 2nd to n to find the max gap
     for (int j=1; j<pai.size(); j++) { // j = job
         // update JML
         for (int s=0; s<STAGE; s++) {
@@ -103,6 +107,7 @@ mat cal_Cmax (vector<int> pai) {
                 }
             }
         }
+        // fin find max gap
         // find Max distence
         int dis = max (0, gapMax);
         for (int s=0; s<STAGE; s++) {
@@ -114,12 +119,26 @@ mat cal_Cmax (vector<int> pai) {
                 r[s][ JML[pai[j]] [s] ]  = r[s-1][ JML[pai[j]] [s-1] ] + PT[s] [pai[j]] [JML[ pai[j]] [s] ];
                 // fonction 20 in paper
             }
+            cout << "gapMax = " << gapMax << endl;
+            cout << "dis = " << dis << endl;
         }
-        // 貌似这个循环体在上面要先写一遍
+        // 貌似这个循环体在上面要先写一遍,JML test success
     }
     // fin arranging jobs from 2ed to fin
     
-    return JML;
+    // calculating max completing time
+    for (int i=0; i<STAGE; i++) {
+        for (int j=0; j<MaxNumMac; j++) {
+            if (C_Max < r[i][j] && r[i][j] != INT_MAX) {
+                C_Max = r[i][j];
+                cout << "C_Max in loop = " << C_Max << " ";
+                cout << "r in loop = " << r[i][j] << " ";
+            }
+        }
+        cout << endl;
+    }
+    PrintMat(JML, JOBS, STAGE);
+    return C_Max;
 }
 
 int main(int argc, const char * argv[]) {
@@ -130,6 +149,7 @@ int main(int argc, const char * argv[]) {
 //    vector<int> a;
 //
 ////    data >> a;
+    // in stage 0, processing time of [job] in [machine]
     PT[0]={{73,70,76,76},
      {3,3,9,4},
      {78,79,89,83},
@@ -166,10 +186,10 @@ int main(int argc, const char * argv[]) {
     r[1][3] = INT_MAX; // no 3rd machine in stage2
     r[2][3] = INT_MAX; // no 3rd machine in stage3
     
-    pai = {0,1,2,3,4,5,6};
-    mat test = cal_Cmax(pai);
+    pai = {0,1};
+    int test = cal_Cmax(pai);
     
-    PrintMat(test, 10, STAGE);
+    cout << test << endl;
     
     return 0;
 }
