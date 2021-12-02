@@ -93,10 +93,12 @@ int cal_Cmax (vector<int> pai) {
             }
             JML[pai[j]] [s] = mCr; // assign No.j job to current machine
             // update releasing time (without calculating distance)
+            /*
             if (s == 0)
                 r[s][mCr] += PT[s][pai[j]][mCr];
             else if (s >= 1)
                 r[s][mCr] = PT[s][pai[j]][mCr] + r[s-1][ JML[pai[0]] [s-1] ];
+             */
             // find Max gap among stages
             // correct releasing time (calculating max distance)
             int gapCr = 0;
@@ -186,7 +188,7 @@ int main(int argc, const char * argv[]) {
     r[1][3] = INT_MAX; // no 3rd machine in stage2
     r[2][3] = INT_MAX; // no 3rd machine in stage3
     
-    pai = {0,1};
+    pai = {0,1,2,3};
     int test = cal_Cmax(pai);
     
     cout << test << endl;
