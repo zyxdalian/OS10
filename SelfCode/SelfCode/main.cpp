@@ -42,7 +42,7 @@ vector<int> pai (10, 0); // scheduling jobs
 mat JML (10, vector<int> (3, 0) ); // job machine list = jobs*stages = Number of machine
 cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
 
-int cal_Cmax (vector<int> pai) {
+mat cal_Cmax (vector<int> pai) {
     // arrange 1er job
     for (int s=0; s<STAGE; s++) {
         // find machine of shortest processing time for 1er job in each stage
@@ -56,11 +56,12 @@ int cal_Cmax (vector<int> pai) {
         }
         JML[pai[0]] [s] = mCr; // assign 1er job to current machine
         if (s == 0)
-            r[s][mCr] += ptCr; // calculate releasing time
+            r[s][mCr] = ptCr; // calculate releasing time
         else if (s >= 1)
-            r[s][mCr] += ptCr + r[s][ JML[pai[0]] [s-1] ];
+            r[s][mCr] = ptCr + r[s-1][ JML[pai[0]] [s-1] ];
     }
     // fin arrange 1er job
+    
     int gapMax = 0;
     // iterate job from 2nd to n
     for (int j=1; j<pai.size(); j++) { // j = job
@@ -76,7 +77,13 @@ int cal_Cmax (vector<int> pai) {
                 }
             }
             JML[pai[j]] [s] = mCr; // assign No.j job to current machine
+            // update releasing time (without calculating distance)
+            if (s == 0)
+                r[s][mCr] += PT[s][pai[j]][mCr];
+            else if (s >= 1)
+                r[s][mCr] = PT[s][pai[j]][mCr] + r[s-1][ JML[pai[0]] [s-1] ];
             // find Max gap among stages
+            // correct releasing time (calculating max distance)
             int gapCr = 0;
             if (s >=1) {
                 gapCr = r[s][ JML[pai[j]] [s] ] - r[s-1][ JML[pai[j]] [s-1] ];
@@ -99,8 +106,12 @@ int cal_Cmax (vector<int> pai) {
         }
         // 貌似这个循环体在上面要先写一遍
     }
-    return 0;
+    // fin arranging jobs from 2ed to fin
+    
+    return JML;
 }
+
+
 
 int main(int argc, const char * argv[]) {
 //    ifstream f1;
@@ -146,7 +157,10 @@ int main(int argc, const char * argv[]) {
     r[1][3] = INT_MAX; // no 3rd machine in stage2
     r[2][3] = INT_MAX; // no 3rd machine in stage3
     
-    int x = cal_Cmax(vector<int> (3, 0));
+    pai = {1,2,3};
+    mat test = cal_Cmax(pai);
+    
+    
     
     return 0;
 }
