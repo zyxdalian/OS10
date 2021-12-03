@@ -38,6 +38,7 @@ typedef vector<vector<vector<int>>> cube;
 #define STAGE 3
 #define JOBS 10
 #define MaxNumMac 4 // max numbre of machines in all stages
+#define NUM_FACTORY 2
 
 mat r(3, vector<int> (4, 0)); // releasing time of each machine = stage * machines
 vector<int> pai (10, 0); // scheduling jobs
@@ -84,7 +85,7 @@ int cal_Cmax (vector<int> pai) {
         for (int s=0; s<STAGE; s++) {
             // find machine of earlest releasing time for current job in each stage
             int mCr = 0; // current machine
-            int rCr = r[s][0]; // current releasing time
+            int rCr = r[s][0]; // current releasing time = earlest releasing time in this stage
             for (int m=0; m<PT[s][pai[j]].size(); m++) { //PT[stage] [job] [machine]
                 if (rCr > r[s][m]) {
                     rCr = r[s][m];
@@ -92,55 +93,73 @@ int cal_Cmax (vector<int> pai) {
                 }
             }
             JML[pai[j]] [s] = mCr; // assign No.j job to current machine
-            // update releasing time (without calculating distance)
-            /*
-            if (s == 0)
-                r[s][mCr] += PT[s][pai[j]][mCr];
-            else if (s >= 1)
-                r[s][mCr] = PT[s][pai[j]][mCr] + r[s-1][ JML[pai[0]] [s-1] ];
-             */
             // find Max gap among stages
-            // correct releasing time (calculating max distance)
             int gapCr = 0;
-            if (s >=1) {
+            if (s >= 1) {
                 gapCr = r[s][ JML[pai[j]] [s] ] - r[s-1][ JML[pai[j]] [s-1] ];
                 if (gapCr > gapMax) {
                     gapMax = gapCr;
                 }
             }
+            // update releasing time in this stage
+            // attention: must update releasing time after calculated the gap
+            if (s == 0)
+                r[s][mCr] += PT[s][pai[j]][mCr];
+            else if (s >= 1)
+                r[s][mCr] = PT[s][pai[j]][mCr] + r[s-1][ JML[pai[j]] [s-1] ];
         }
         // fin find max gap
         // find Max distence
         int dis = max (0, gapMax);
+        // correcting the releasing time
         for (int s=0; s<STAGE; s++) {
+            // attention : moved the PT part of fonctions above.
+            // because we need to update PT before calculating gap.
             if (s==0) {
-                r[s][ JML[pai[j]] [s] ]  += PT[s] [pai[j]] [JML[ pai[j]] [s] ] + dis;
+                r[s][ JML[pai[j]] [s] ]  += dis;
                 // fonction 19 in paper
             }
             else if (s >= 1) {
-                r[s][ JML[pai[j]] [s] ]  = r[s-1][ JML[pai[j]] [s-1] ] + PT[s] [pai[j]] [JML[ pai[j]] [s] ];
+                r[s][ JML[pai[j]] [s] ]  = r[s-1][ JML[pai[j]] [s-1] ] + PT[s][pai[j]][JML[pai[j]][s]];
                 // fonction 20 in paper
             }
             cout << "gapMax = " << gapMax << endl;
             cout << "dis = " << dis << endl;
         }
-        // 貌似这个循环体在上面要先写一遍,JML test success
+        // JML test success
     }
     // fin arranging jobs from 2ed to fin
     
     // calculating max completing time
     for (int i=0; i<STAGE; i++) {
         for (int j=0; j<MaxNumMac; j++) {
+            cout << "r = " << r[i][j] << "; ";
             if (C_Max < r[i][j] && r[i][j] != INT_MAX) {
                 C_Max = r[i][j];
-                cout << "C_Max in loop = " << C_Max << " ";
-                cout << "r in loop = " << r[i][j] << " ";
             }
         }
+        cout << "C_Max = " << C_Max << " ";
         cout << endl;
     }
     PrintMat(JML, JOBS, STAGE);
     return C_Max;
+}
+
+mat DNEH (vector<int> sigma) {
+    mat pais (NUM_FACTORY, vector<int> ());
+    
+    for (int f=0; f<NUM_FACTORY; f++) {
+        pais[f].push_back(sigma[f]);
+    }
+    
+    for (int j=NUM_FACTORY; j<sigma.size(); j++) {
+        
+        for (int f=0; f<NUM_FACTORY; f++) {
+            
+        }
+    }
+    
+    return pais;
 }
 
 int main(int argc, const char * argv[]) {
@@ -188,10 +207,9 @@ int main(int argc, const char * argv[]) {
     r[1][3] = INT_MAX; // no 3rd machine in stage2
     r[2][3] = INT_MAX; // no 3rd machine in stage3
     
-    pai = {0,1,2,3};
+    pai = {0,1,2,3,4,5};
     int test = cal_Cmax(pai);
-    
-    cout << test << endl;
+    cout << pai.size() << "jobs arranged, C_max = " << test << endl;
     
     return 0;
 }
