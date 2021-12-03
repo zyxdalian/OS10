@@ -123,8 +123,8 @@ int cal_Cmax (vector<int> pai) {
                 r[s][ JML[pai[j]] [s] ]  = r[s-1][ JML[pai[j]] [s-1] ] + PT[s][pai[j]][JML[pai[j]][s]];
                 // fonction 20 in paper
             }
-            cout << "gapMax = " << gapMax << endl;
-            cout << "dis = " << dis << endl;
+//            cout << "gapMax = " << gapMax << endl;
+//            cout << "dis = " << dis << endl;
         }
         // JML test success
     }
@@ -133,15 +133,15 @@ int cal_Cmax (vector<int> pai) {
     // calculating max completing time
     for (int i=0; i<STAGE; i++) {
         for (int j=0; j<MaxNumMac; j++) {
-            cout << "r = " << r[i][j] << "; ";
+//            cout << "r = " << r[i][j] << "; ";
             if (C_Max < r[i][j] && r[i][j] != INT_MAX) {
                 C_Max = r[i][j];
             }
         }
-        cout << "C_Max = " << C_Max << " ";
-        cout << endl;
+//        cout << "C_Max = " << C_Max << " ";
+//        cout << endl;
     }
-    PrintMat(JML, JOBS, STAGE);
+//    PrintMat(JML, JOBS, STAGE);
     return C_Max;
 }
 
@@ -209,7 +209,7 @@ int main(int argc, const char * argv[]) {
     
     pai = {0,1,2,3,4,5};
     int test = cal_Cmax(pai);
-    cout << pai.size() << "jobs arranged, C_max = " << test << endl;
+//    cout << pai.size() << " jobs arranged, C_max = " << test << endl;
     
     return 0;
 }
