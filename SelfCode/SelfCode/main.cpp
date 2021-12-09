@@ -48,15 +48,13 @@ void PrintMat (mat aMat, int l, int c) {
     }
 }
 
-//mat r(3, vector<int> (4, 0)); // releasing time of each machine = stage * machines
+mat r(3, vector<int> (4, 0));
 //vector<int> global_pai (10, 0); // scheduling jobs
 //mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
 cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
 
 int cal_Cmax (vector<int> pai) {
-    mat r(3, vector<int> (4, 0));
-    r[1][3] = INT_MAX; // no 3rd machine in stage2
-    r[2][3] = INT_MAX;
+
     //vector<int> global_pai (10, 0); // scheduling jobs
     mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
     //cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
@@ -250,21 +248,21 @@ int main(int argc, const char * argv[]) {
      {98,71,89,INT_MAX},
      {97,93,96,INT_MAX}};
     
-    //r[1][3] = INT_MAX; // no 3rd machine in stage2
-    //r[2][3] = INT_MAX; // no 3rd machine in stage3
+    r[1][3] = INT_MAX; // no 3rd machine in stage2
+    r[2][3] = INT_MAX; // no 3rd machine in stage3
     
-    vector<int> debug_pai = {0,2};
-    int debug = cal_Cmax(debug_pai);
-    cout << debug_pai.size() << " jobs arranged, C_max = " << debug << endl;
-    
-    vector<int> debug_pai2 = {0,1,2,3};
-    int debug2 = cal_Cmax(debug_pai2);
-    cout << debug_pai2.size() << " jobs arranged, C_max = " << debug2 << endl;
+//    vector<int> debug_pai = {0,2};
+//    int debug = cal_Cmax(debug_pai);
+//    cout << debug_pai.size() << " jobs arranged, C_max = " << debug << endl;
+//
+//    vector<int> debug_pai2 = {0,1,2,3};
+//    int debug2 = cal_Cmax(debug_pai2);
+//    cout << debug_pai2.size() << " jobs arranged, C_max = " << debug2 << endl;
 
     
-    //vector<int> sigma = {0,1,2,3,4,5,6,7,8,9};
-    //mat debug_pais;
-    //debug_pais = DNEH(sigma);
+    vector<int> sigma = {0,1,2,3,4,5,6,7,8,9};
+    mat debug_pais;
+    debug_pais = DNEH(sigma);
     //PrintMat(debug_pais, NUM_FACTORY, 3);
     
     return 0;
