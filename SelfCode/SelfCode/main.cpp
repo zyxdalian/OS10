@@ -53,8 +53,34 @@ void PrintMat (mat aMat) {
 //mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
 cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
 
-int cal_Cmax (vector<int> pai) {
+vector<int> LPT (void) {
+    
+    // calculate the mean PT
+    vector<double> PT_mean (JOBS, -1);
+    for (int j=0; j<JOBS; j++) {
+        int pt_crr = 0; // current sum processing time of this job
+        for (int s=0; s<STAGE; s++) {
+            for (int m=0; m<MaxNumMac; m++) {
+                if (PT[s][j][m] == INT_MAX)
+                    break;
+                pt_crr += PT[s][j][m];
+            }
+        }
+        PT_mean[j] = pt_crr/STAGE;
+    }
+    // fin calculate the mean PT
+    
+    // sort and get sigma
+    vector<int> sigma(JOBS);
+    for (int i=0; i<JOBS; i++)
+        sigma.push_back(i);
+    sort (sigma.begin(), sigma.end(),
+         [&PT_mean] (double i1, double i2) {return PT_mean[i1] > PT_mean[i2];} );
+    
+    return sigma;
+}
 
+int cal_Cmax (vector<int> pai) {
     mat r(3, vector<int> (4, 0)); // releasing time = stage*machine
     r[1][3] = INT_MAX; // no 3rd machine in stage2
     r[2][3] = INT_MAX; // no 3rd machine in stage3
@@ -283,7 +309,7 @@ int main(int argc, const char * argv[]) {
 //    cout << "F2: C_max = " << debug2 << endl;
 
     
-    vector<int> sigma = {0,1,2,3,4};
+    vector<int> sigma = LPT();
     mat debug_pais;
     debug_pais = DNEH(sigma);
     
