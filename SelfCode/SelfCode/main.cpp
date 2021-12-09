@@ -153,6 +153,8 @@ mat DNEH (vector<int> sigma) {
     }
     
     for (int j=NUM_FACTORY; j<sigma.size(); j++) {
+        vector<int> test_pai;
+        test_pai.push_back(sigma[j]);
         
         for (int f=0; f<NUM_FACTORY; f++) {
             
@@ -207,9 +209,9 @@ int main(int argc, const char * argv[]) {
     r[1][3] = INT_MAX; // no 3rd machine in stage2
     r[2][3] = INT_MAX; // no 3rd machine in stage3
     
-    pai = {0,1,2,3,4,5};
+    pai = {0,1,2,3,4};
     int test = cal_Cmax(pai);
-//    cout << pai.size() << " jobs arranged, C_max = " << test << endl;
+    cout << pai.size() << " jobs arranged, C_max = " << test << endl;
     
     return 0;
 }
