@@ -40,11 +40,6 @@ typedef vector<vector<vector<int>>> cube;
 #define MaxNumMac 4 // max numbre of machines in all stages
 #define NUM_FACTORY 2
 
-mat r(3, vector<int> (4, 0)); // releasing time of each machine = stage * machines
-vector<int> pai (10, 0); // scheduling jobs
-mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
-cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
-
 void PrintMat (mat aMat, int l, int c) {
     for (int i=0; i<l; i++) {
         for (int j=0; j<c; j++)
@@ -53,8 +48,18 @@ void PrintMat (mat aMat, int l, int c) {
     }
 }
 
+//mat r(3, vector<int> (4, 0)); // releasing time of each machine = stage * machines
+//vector<int> global_pai (10, 0); // scheduling jobs
+//mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
+cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
+
 int cal_Cmax (vector<int> pai) {
-    
+    mat r(3, vector<int> (4, 0));
+    r[1][3] = INT_MAX; // no 3rd machine in stage2
+    r[2][3] = INT_MAX;
+    //vector<int> global_pai (10, 0); // scheduling jobs
+    mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
+    //cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
     int C_Max = -1; // max completing time
     
     // arrange 1er job
@@ -148,18 +153,57 @@ int cal_Cmax (vector<int> pai) {
 mat DNEH (vector<int> sigma) {
     mat pais (NUM_FACTORY, vector<int> ());
     
+    // assign a job for each factory
     for (int f=0; f<NUM_FACTORY; f++) {
         pais[f].push_back(sigma[f]);
     }
     
+    // assign the rest jobs
     for (int j=NUM_FACTORY; j<sigma.size(); j++) {
-        vector<int> test_pai;
-        test_pai.push_back(sigma[j]);
         
+        vector<int> test_pai;
+        int best_CMax = INT_MAX; // best C max for this job in all factories
+        int best_Fac = -1; // best C_max found in this factory
+        int best_Pos = -1; // best C_max found in this position (in this factory) = numbre of switch
+        
+        // put this job in each factory
         for (int f=0; f<NUM_FACTORY; f++) {
+            test_pai = pais[f];
+            int CMax_crr = INT_MAX; // current C_max
+            int c_s = 0; // counter of switch
+            test_pai.push_back(sigma[j]);
+            int n_test_pai = test_pai.size();
+            // now test all positions to find the best C_Max in this factory
+            CMax_crr = cal_Cmax(test_pai);
+            if (CMax_crr < best_CMax) {
+                best_CMax = CMax_crr;
+                best_Fac = f;
+                best_Pos = c_s;
+            }
+            while (test_pai[0] != sigma[j]) {
+                int pos_crr = n_test_pai - c_s - 1;
+                swap(test_pai[pos_crr], test_pai[pos_crr-1]);
+                c_s ++;
+                CMax_crr = cal_Cmax(test_pai);
+                if (CMax_crr < best_CMax) {
+                    best_CMax = CMax_crr;
+                    best_Fac = f;
+                    best_Pos = c_s;
+                }
+            }
+            // fin while (test all positions in this factory)
             
         }
+        // fin j for (put this job in all factories)
+        
+        pais[best_Fac].push_back(sigma[j]);
+        int n = pais[best_Fac].size();
+        for (int i=0; i<best_Pos; i++) {
+            swap(pais[best_Fac][n-i], pais[best_Fac][n-i-1]);
+        }
+        cout << "assigning " << j << " job, " << "with CMax = " << best_CMax << endl;
     }
+    // fin f for (assign the rest jobs)
     
     return pais;
 }
@@ -206,12 +250,22 @@ int main(int argc, const char * argv[]) {
      {98,71,89,INT_MAX},
      {97,93,96,INT_MAX}};
     
-    r[1][3] = INT_MAX; // no 3rd machine in stage2
-    r[2][3] = INT_MAX; // no 3rd machine in stage3
+    //r[1][3] = INT_MAX; // no 3rd machine in stage2
+    //r[2][3] = INT_MAX; // no 3rd machine in stage3
     
-    pai = {0,1,2,3,4};
-    int test = cal_Cmax(pai);
-    cout << pai.size() << " jobs arranged, C_max = " << test << endl;
+    vector<int> debug_pai = {0,2};
+    int debug = cal_Cmax(debug_pai);
+    cout << debug_pai.size() << " jobs arranged, C_max = " << debug << endl;
+    
+    vector<int> debug_pai2 = {0,1,2,3};
+    int debug2 = cal_Cmax(debug_pai2);
+    cout << debug_pai2.size() << " jobs arranged, C_max = " << debug2 << endl;
+
+    
+    //vector<int> sigma = {0,1,2,3,4,5,6,7,8,9};
+    //mat debug_pais;
+    //debug_pais = DNEH(sigma);
+    //PrintMat(debug_pais, NUM_FACTORY, 3);
     
     return 0;
 }
