@@ -40,11 +40,12 @@ typedef vector<vector<vector<int>>> cube;
 #define MaxNumMac 4 // max numbre of machines in all stages
 #define NUM_FACTORY 2
 
-void PrintMat (mat aMat, int l) {
-    for (int i=0; i<l; i++) {
-        for (int j=0; j<sizeof(aMat[i]); j++)
-            cout << (aMat[i][j] + 1) << " ";
-        cout << endl;
+void PrintMat (mat aMat) {
+    for ( auto p = begin(aMat) ; p != end(aMat); ++p) {   //用begin()和end()来替代手工的控制变量
+        for ( auto q = begin(*p); q != end(*p); ++q ) {
+            cout << *q << ' ';
+        }
+        cout<<endl;
     }
 }
 
@@ -201,11 +202,34 @@ mat DNEH (vector<int> sigma) {
         for (int i=0; i<best_Pos; i++) {
             swap(pais[best_Fac][n-i], pais[best_Fac][n-i-1]);
         }
-        cout << j+1 << " jobs assigned, " << "with CMax = " << best_CMax << endl;
     }
     // fin f for (assign the rest jobs)
     
     return pais;
+}
+
+void ShowCMax (mat pais) {
+    // show the results
+    for (int f=0; f<NUM_FACTORY; f++)
+        cout << "Fac " << f << " C_max = " << cal_Cmax(pais[f]) << endl;
+    // find max CMax among all factories
+    int res = cal_Cmax(pais[0]);
+    for (int f=0; f<NUM_FACTORY; f++) {
+        res = cal_Cmax(pais[f]) > res ? cal_Cmax(pais[f]) : res;
+    }
+    cout << "C_Max = " << res << endl;
+    
+}
+
+void ShowDNEH (mat aMat) { // show job assignments among factories
+    int f = 1;
+    for ( auto p = begin(aMat) ; p != end(aMat); ++p) {
+        cout << "Jobs in Fac " << f++ << ": ";
+        for ( auto q = begin(*p); q != end(*p); ++q ) {
+            cout << *q + 1 << ' ';
+        }
+        cout<<endl;
+    }
 }
 
 int main(int argc, const char * argv[]) {
@@ -250,19 +274,21 @@ int main(int argc, const char * argv[]) {
      {98,71,89,INT_MAX},
      {97,93,96,INT_MAX}};
     
-    vector<int> debug_pai = {0,3};
-    int debug = cal_Cmax(debug_pai);
-    cout << "F1: C_max = " << debug << endl;
-
-    vector<int> debug_pai2 = {0,1,2,3,4,5};
-    int debug2 = cal_Cmax(debug_pai2);
-    cout << "F2: C_max = " << debug2 << endl;
+//    vector<int> debug_pai = {0,3};
+//    int debug = cal_Cmax(debug_pai);
+//    cout << "F1: C_max = " << debug << endl;
+//
+//    vector<int> debug_pai2 = {1,2,4};
+//    int debug2 = cal_Cmax(debug_pai2);
+//    cout << "F2: C_max = " << debug2 << endl;
 
     
-    vector<int> sigma = {0,1,2,3};
+    vector<int> sigma = {0,1,2,3,4};
     mat debug_pais;
     debug_pais = DNEH(sigma);
-    PrintMat(debug_pais, NUM_FACTORY);
+    
+    ShowCMax(debug_pais);
+    ShowDNEH(debug_pais);
     
     return 0;
 }
