@@ -10,6 +10,7 @@
 #include <vector>
 #include <fstream>
 #include <math.h>
+#include <algorithm>
 
 using namespace std;
 typedef vector<vector<int>> mat;
@@ -234,17 +235,21 @@ mat DNEH (vector<int> sigma) {
     return pais;
 }
 
-void ShowCMax (mat pais) {
-    // show the results
-    for (int f=0; f<NUM_FACTORY; f++)
-        cout << "Fac " << f << " C_max = " << cal_Cmax(pais[f]) << endl;
+int FindMaxCMax (const mat& pais) {
     // find max CMax among all factories
     int res = cal_Cmax(pais[0]);
     for (int f=0; f<NUM_FACTORY; f++) {
         res = cal_Cmax(pais[f]) > res ? cal_Cmax(pais[f]) : res;
     }
+    return res;
+}
+void ShowCMax (const mat& pais) {
+    // show the results
+    for (int f=0; f<NUM_FACTORY; f++)
+        cout << "Fac " << f << " C_max = " << cal_Cmax(pais[f]) << endl;
+    // find max CMax among all factories
+    int res = FindMaxCMax(pais);
     cout << "C_Max = " << res << endl;
-    
 }
 
 void ShowDNEH (mat aMat) { // show job assignments among factories
@@ -258,13 +263,56 @@ void ShowDNEH (mat aMat) { // show job assignments among factories
     }
 }
 
-//mat VND_LS_Insert (mat pais) {
-//    mat new_pais;
-//
-//
-//
-//    return new_pais;
-//}
+void NewPais(mat& pais, int fac, int pos, int tar_fac){
+    pais[tar_fac].push_back(pais[fac][pos]);
+    int n = pais[fac].size();
+    for(int i=pos; i<n-1; i++){
+        pais[fac][i]=pais[fac][i+1];
+    }
+    pais[fac].pop_back();
+}
+int FindBetterPais (mat&best_pais, mat& new_pais, const int& CMax0, const int& tf) {
+    int pos = new_pais[tf].size()-1;
+    int better_CMax = CMax0;
+    while (pos != 0) {
+        if (FindMaxCMax(new_pais) < better_CMax) {
+            best_pais = new_pais;
+            better_CMax = FindMaxCMax(new_pais);
+        }
+        swap(new_pais[tf][pos], new_pais[tf][pos-1]);
+        pos --;
+    }
+    if (FindMaxCMax(new_pais) < better_CMax) {
+        best_pais = new_pais;
+        better_CMax = FindMaxCMax(new_pais);
+    }
+    return better_CMax;
+}
+mat LS_Insert (const mat& pais, const int& CMax0) {
+    mat best_pais = pais;
+    int best_CMax = CMax0;
+    // extract job from factory f
+    int f = -1;
+    for (int i=0; i<NUM_FACTORY; i++) {
+        if (cal_Cmax(pais[i]) == CMax0)
+            f = i;
+    }
+    for (int pos=0; pos<pais[f].size(); pos++ ) { // extract job in position 'pos' in fac 'f'
+        for (int tf=0; tf<NUM_FACTORY; tf++) { // tf = target factory, insert job to this fac
+            
+            if (tf != f) {
+                mat new_pais = pais;
+                // extract job from position pos of fac f to fac tf
+                // modifie the new_pais directely
+                NewPais(new_pais, f, pos, tf);
+                // test if we can find a better solution, if none, res = -1
+                int res = FindBetterPais(best_pais, new_pais, best_CMax, tf);
+            }
+            
+        }
+    }
+    return best_pais;
+}
 
 int main(int argc, const char * argv[]) {
 //    ifstream f1;
@@ -318,11 +366,20 @@ int main(int argc, const char * argv[]) {
 
     
     vector<int> sigma = LPT();
+//    vector<int> sigma = {0,1,2,7,8,9,3,4,5,6,};
     mat debug_pais;
-    debug_pais = DNEH(sigma);
     
+    cout << "using DNEH : " << endl;
+    debug_pais = DNEH(sigma);
     ShowCMax(debug_pais);
     ShowDNEH(debug_pais);
+    
+    cout << endl;
+    
+    cout << "using LS_Insert to improve the result : " << endl;
+    mat new_pais = LS_Insert(debug_pais, FindMaxCMax(debug_pais));
+    ShowCMax(new_pais);
+    ShowDNEH(new_pais);
     
     return 0;
 }
