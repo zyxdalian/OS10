@@ -71,7 +71,7 @@ vector<int> LPT (void) {
     // fin calculate the mean PT
     
     // sort and get sigma
-    vector<int> sigma(JOBS);
+    vector<int> sigma;
     for (int i=0; i<JOBS; i++)
         sigma.push_back(i);
     sort (sigma.begin(), sigma.end(),
@@ -257,6 +257,14 @@ void ShowDNEH (mat aMat) { // show job assignments among factories
         cout<<endl;
     }
 }
+
+//mat VND_LS_Insert (mat pais) {
+//    mat new_pais;
+//
+//
+//
+//    return new_pais;
+//}
 
 int main(int argc, const char * argv[]) {
 //    ifstream f1;
