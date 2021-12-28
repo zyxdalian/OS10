@@ -52,7 +52,7 @@ void PrintMat (mat aMat) {
 
 //vector<int> global_pai (10, 0); // scheduling jobs
 //mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
-cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
+cube PT (STAGE, vector<vector<int>> (JOBS, vector<int> (MaxNumMac)) );// processing time of stage*jobs*machines
 
 vector<int> LPT (void) {
     
@@ -82,11 +82,11 @@ vector<int> LPT (void) {
 }
 
 int cal_Cmax (vector<int> pai) {
-    mat r(3, vector<int> (4, 0)); // releasing time = stage*machine
+    mat r(STAGE, vector<int> (MaxNumMac, 0)); // releasing time = stage*machine
     r[1][3] = INT_MAX; // no 3rd machine in stage2
     r[2][3] = INT_MAX; // no 3rd machine in stage3
     //vector<int> global_pai (10, 0); // scheduling jobs
-    mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
+    mat JML (JOBS, vector<int> (MaxNumMac, -2) ); // job machine list = jobs*stages = Number of machine
     //cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
     int C_Max = -1; // max completing time
     
@@ -94,10 +94,10 @@ int cal_Cmax (vector<int> pai) {
     for (int s=0; s<STAGE; s++) {
         // find machine of shortest processing time for 1er job in each stage
         int mCr = 0; // current machine
-        int ptCr = PT[s][0][0]; // current releasing time
+        int ptCr = PT[s][pai[0]][0]; // current releasing time
         for (int m=0; m<MaxNumMac; m++) { //m<PT[s][0].size()
-            if (ptCr > PT[s][0][m]) {
-                ptCr = PT[s][0][m];
+            if (ptCr > PT[s][pai[0]][m]) {
+                ptCr = PT[s][pai[0]][m];
                 mCr = m;
 //                cout << "ptCr = " << ptCr << " ";
             }
