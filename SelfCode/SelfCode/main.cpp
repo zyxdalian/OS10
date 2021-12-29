@@ -16,46 +16,15 @@ using namespace std;
 typedef vector<vector<int>> mat;
 typedef vector<vector<vector<int>>> cube;
 
-//int ReadFile (ifstream f) {
-//    if (f.fail())
-//        printf("open failed \n");
-//    mat data = mat (n, vector<int> (n, 0));
-//    while (!f.eof()) {
-//        for (int i=0; i<n; i++) {
-//            for (int j=0; j<n; j++) {
-//                f >> data[i][j];
-//            }
-//        }
-//    }
-//    for (int i=0; i<n; i++) {
-//        for (int j=0; j<n; j++) {
-//            cout << data[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    return 1;
-//};
-
 #define STAGE 3
 #define JOBS 10
 #define MaxNumMac 4 // max numbre of machines in all stages
 #define NUM_FACTORY 2
 
-void PrintMat (mat aMat) {
-    for ( auto p = begin(aMat) ; p != end(aMat); ++p) {   //用begin()和end()来替代手工的控制变量
-        for ( auto q = begin(*p); q != end(*p); ++q ) {
-            cout << *q << ' ';
-        }
-        cout<<endl;
-    }
-}
-
-//vector<int> global_pai (10, 0); // scheduling jobs
 //mat JML (10, vector<int> (3, -2) ); // job machine list = jobs*stages = Number of machine
 cube PT (STAGE, vector<vector<int>> (JOBS, vector<int> (MaxNumMac)) );// processing time of stage*jobs*machines
 
 vector<int> LPT (void) {
-    
     // calculate the mean PT
     vector<double> PT_mean (JOBS, -1);
     for (int j=0; j<JOBS; j++) {
@@ -83,9 +52,8 @@ vector<int> LPT (void) {
 
 int cal_Cmax (vector<int> pai) {
     mat r(STAGE, vector<int> (MaxNumMac, 0)); // releasing time = stage*machine
-    r[1][3] = INT_MAX; // no 3rd machine in stage2
-    r[2][3] = INT_MAX; // no 3rd machine in stage3
-    //vector<int> global_pai (10, 0); // scheduling jobs
+    r[1][3] = INT_MAX; // no 4th machine in stage2
+    r[2][3] = INT_MAX; // no 4th machine in stage3
     mat JML (JOBS, vector<int> (MaxNumMac, -2) ); // job machine list = jobs*stages = Number of machine
     //cube PT (3, vector<vector<int>> (10, vector<int> (4)) );// processing time of stage*jobs*machines
     int C_Max = -1; // max completing time
@@ -159,7 +127,6 @@ int cal_Cmax (vector<int> pai) {
 //            cout << "gapMax = " << gapMax << endl;
 //            cout << "dis = " << dis << endl;
         }
-        // JML test success
     }
     // fin arranging jobs from 2ed to fin
     
@@ -174,7 +141,6 @@ int cal_Cmax (vector<int> pai) {
 //        cout << "C_Max = " << C_Max << " ";
 //        cout << endl;
     }
-//    PrintMat(JML, JOBS, STAGE);
     return C_Max;
 }
 
@@ -246,7 +212,7 @@ int FindMaxCMax (const mat& pais) {
 void ShowCMax (const mat& pais) {
     // show the results
     for (int f=0; f<NUM_FACTORY; f++)
-        cout << "Fac " << f << " C_max = " << cal_Cmax(pais[f]) << endl;
+        cout << "Fac " << f+1 << " C_max = " << cal_Cmax(pais[f]) << endl;
     // find max CMax among all factories
     int res = FindMaxCMax(pais);
     cout << "C_Max = " << res << endl;
@@ -315,14 +281,7 @@ mat LS_Insert (const mat& pais, const int& CMax0) {
 }
 
 int main(int argc, const char * argv[]) {
-//    ifstream f1;
-//    f1.open
-//    ("/Users/frederic/Documents/UTT/5_21A/OS10/prj/codes/SelfCode/SelfCode/DHFSP_10_5_3_1_job_pt.txt");
-//    ReadFile(f1);
-//    vector<int> a;
-//
-////    data >> a;
-    // in stage 0, processing time of [job] in [machine]
+
     PT[0]={{73,70,76,76},
      {3,3,9,4},
      {78,79,89,83},
@@ -344,7 +303,7 @@ int main(int argc, const char * argv[]) {
      {59,52,52,INT_MAX},
      {31,40,35,INT_MAX},
      {48,49,49,INT_MAX}};
-     
+
     PT[2]={{4,10,4,INT_MAX},
      {22,12,18,INT_MAX},
      {93,95,99,INT_MAX},
@@ -356,28 +315,17 @@ int main(int argc, const char * argv[]) {
      {98,71,89,INT_MAX},
      {97,93,96,INT_MAX}};
     
-//    vector<int> debug_pai = {0,3};
-//    int debug = cal_Cmax(debug_pai);
-//    cout << "F1: C_max = " << debug << endl;
-//
-//    vector<int> debug_pai2 = {1,2,4};
-//    int debug2 = cal_Cmax(debug_pai2);
-//    cout << "F2: C_max = " << debug2 << endl;
-
-    
     vector<int> sigma = LPT();
-//    vector<int> sigma = {0,1,2,7,8,9,3,4,5,6,};
-    mat debug_pais;
+    mat my_pais;
     
     cout << "using DNEH : " << endl;
-    debug_pais = DNEH(sigma);
-    ShowCMax(debug_pais);
-    ShowDNEH(debug_pais);
-    
+    my_pais = DNEH(sigma);
+    ShowCMax(my_pais);
+    ShowDNEH(my_pais);
     cout << endl;
     
     cout << "using LS_Insert to improve the result : " << endl;
-    mat new_pais = LS_Insert(debug_pais, FindMaxCMax(debug_pais));
+    mat new_pais = LS_Insert(my_pais, FindMaxCMax(my_pais));
     ShowCMax(new_pais);
     ShowDNEH(new_pais);
     
